@@ -15,41 +15,34 @@ import java.util.Random;
 public class MapTest extends Application{
 	
 	private final String COLOR_RGB = "-fx-background-color: rgb"; //(50,50,50)
-	private final String COLOR_SALMON = "-fx-background-color: salmon";
-	private final String COLOR_SPRINGGREEN = "-fx-background-color: springgreen";
-	private final String COLOR_ORANGE = "-fx-background-color: orange";
-	private final String COLOR_CYAN = "-fx-background-color: cyan";
+	private final String BLACK_BORDER = "-fx-border-color:black";
 
 	public static void main(String[] args) {
 		launch(args);
 	}
 	
 	private final int MAX_COLOR_VALUE = 255;
-	private final int LEAST_COLOR_VALUE = 0;
+	private final int MIN_COLOR_VALUE = 0;
 	
-	public class Tile extends GridPane{
-		
-		private Label background = new Label();
+	public class Tile extends Label{
 		
 		private ColorSelection hoverSelector = new ColorSelection();
 		
 		public Tile(ColorSelection colorSelector) {
-			Random rand = new Random();
 			
-			background.setStyle(COLOR_RGB + "(" + MAX_COLOR_VALUE + "," + MAX_COLOR_VALUE + "," + MAX_COLOR_VALUE + ")");
+			setStyle(COLOR_RGB + "(" + MAX_COLOR_VALUE + "," + MAX_COLOR_VALUE + "," + MAX_COLOR_VALUE + ")");
 			
 			hoverSelector = colorSelector;
 			
-			background.setPrefSize(20, 20);
-			background.setAlignment(Pos.CENTER);
+			setPrefSize(20, 20);
+			setAlignment(Pos.CENTER);
 			
-			add(background, 0, 0);
-			background.setOnMouseEntered(new HoverHandler());
+			setOnMouseEntered(new HoverHandler());
 			
 		}
 		
 		public void setColor(int[] color) {
-			background.setStyle(COLOR_RGB + "(" + color[0] + "," + color[1] + "," + color[2] + ")");
+			setStyle(COLOR_RGB + "(" + color[0] + "," + color[1] + "," + color[2] + ")");
 		}
 		
 		//When tile is clicked replace color with selected option
@@ -63,28 +56,39 @@ public class MapTest extends Application{
 	
 	public class ColorSelection {
 		
-		//Input your RPG code
-		private TextField redValue = new TextField("255");
-		private TextField greenValue = new TextField("255");
-		private TextField blueValue = new TextField("255");
+		//Input your RGB code
+		private TextField redValue = new TextField("" + MAX_COLOR_VALUE);
+		private TextField greenValue = new TextField("" + MAX_COLOR_VALUE);
+		private TextField blueValue = new TextField("" + MAX_COLOR_VALUE);
+		
 		
 		private CheckBox eraser = new CheckBox("Eraser");
 		
-		//Will change color based on rgb value
+		//Will change color based on RGB value
 		private Label showColor = new Label();
 		
-		
-		VBox parent = new VBox(redValue, greenValue, blueValue, eraser, showColor);
+		HBox parent = new HBox(redValue, greenValue, blueValue, eraser, showColor);
 		
 		public ColorSelection() {
+			//Creates action handlers for objects
 			redValue.setOnAction(new ActionHandler());
 			greenValue.setOnAction(new ActionHandler());
 			blueValue.setOnAction(new ActionHandler());
 			eraser.setOnAction(new ActionHandler());
+			
+			//Sets defaults for showColor object
 			showColor.setPrefSize(30, 30);
+			showColor.setStyle(COLOR_RGB + "(" + Integer.parseInt(redValue.getText()) + "," + Integer.parseInt(greenValue.getText()) + ","
+					+ Integer.parseInt(blueValue.getText()) + ")");
+			
+			parent.setPadding(new Insets(15));
+			parent.setPrefSize(1000, 50);
+			parent.setAlignment(Pos.TOP_CENTER);
+			
+			parent.setStyle(BLACK_BORDER);
 		}
 		
-		public VBox output() {
+		public HBox output() {
 			return parent;
 		}
 		
@@ -111,16 +115,16 @@ public class MapTest extends Application{
 		public class ActionHandler implements EventHandler<ActionEvent>{
 			@Override
 			public void handle(ActionEvent onAction) {
+				//Changes background colors for showColor label
 				if (eraser.isSelected()) {
 					showColor.setStyle(COLOR_RGB + "(" + MAX_COLOR_VALUE + "," + MAX_COLOR_VALUE + "," + MAX_COLOR_VALUE + ")");
 				}
 				else {
 					showColor.setStyle(COLOR_RGB + "(" + Integer.parseInt(redValue.getText()) + "," + Integer.parseInt(greenValue.getText()) + ","
 							+ Integer.parseInt(blueValue.getText()) + ")");
-				}
+				}			
 			}
 		}
-		
 	}
 	
 	
@@ -130,21 +134,25 @@ public class MapTest extends Application{
 		ColorSelection color = new ColorSelection();
 		GridPane map = new GridPane();
 		
-		int x = 32;
+		//Sets decor
+		map.setStyle(BLACK_BORDER);
+		map.setAlignment(Pos.CENTER);
+		
+		int x = 48;
 		int y = 32;
 		
 		Tile tileMap[][] = new Tile[x][y];
 		
 		for(int i = 0; i < y; i++) {
 			for(int n = 0; n < x; n++) {
-				tileMap[i][n] = new Tile(color);
-				map.add(tileMap[i][n], i, n);
+				tileMap[n][i] = new Tile(color);
+				map.add(tileMap[n][i], n, i);
 			}
 		}
 
-		HBox parent = new HBox(color.output(), map);
+		VBox parent = new VBox(color.output(), map);
 		
-		Scene scene = new Scene(parent, 750, 750);
+		Scene scene = new Scene(parent, 1000, 800);
 		stage.setScene(scene);
 		stage.setTitle("Color Selection GUI");
 		stage.show();
